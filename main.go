@@ -342,7 +342,7 @@ func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
 
 func main() {
 	ebiten.SetWindowSize(screenWidth*2, screenHeight*2)
-	ebiten.SetWindowTitle("Audio (Ebiten Demo)")
+	ebiten.SetWindowTitle("Ogg Loop Checker")
 	g, err := NewGame()
 	if err != nil {
 		log.Fatal(err)
