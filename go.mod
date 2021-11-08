@@ -3,17 +3,21 @@ module github.com/odencat/oggplayer
 go 1.17
 
 require (
+	github.com/hajimehoshi/ebiten/v2 v2.3.0-alpha.2
+	github.com/hajimehoshi/oggloop v0.0.0-20180730010327-c7cf68761483
+	github.com/sqweek/dialog v0.0.0-20211002065838-9a201b55ab91
+)
+
+require (
 	github.com/TheTitanrain/w32 v0.0.0-20180517000239-4f5cfb03fabf // indirect
-	github.com/go-gl/glfw/v3.3/glfw v0.0.0-20200707082815-5321531c36a2 // indirect
-	github.com/hajimehoshi/ebiten v1.12.12 // indirect
-	github.com/hajimehoshi/go-mp3 v0.3.1 // indirect
-	github.com/hajimehoshi/oggloop v0.0.0-20180730010327-c7cf68761483 // indirect
-	github.com/hajimehoshi/oto v0.6.8 // indirect
-	github.com/jfreymuth/oggvorbis v1.0.1 // indirect
-	github.com/jfreymuth/vorbis v1.0.0 // indirect
-	github.com/sqweek/dialog v0.0.0-20211002065838-9a201b55ab91 // indirect
+	github.com/go-gl/glfw/v3.3/glfw v0.0.0-20211024062804-40e447a793be // indirect
+	github.com/hajimehoshi/oto/v2 v2.1.0-alpha.3.0.20211031094829-90037bd6c697 // indirect
+	github.com/jezek/xgb v0.0.0-20210312150743-0e0f116e1240 // indirect
+	github.com/jfreymuth/oggvorbis v1.0.3 // indirect
+	github.com/jfreymuth/vorbis v1.0.2 // indirect
 	golang.org/x/exp v0.0.0-20190731235908-ec7cb31e5a56 // indirect
-	golang.org/x/image v0.0.0-20200801110659-972c09e46d76 // indirect
-	golang.org/x/mobile v0.0.0-20210208171126-f462b3930c8f // indirect
-	golang.org/x/sys v0.0.0-20200918174421-af09f7315aff // indirect
+	golang.org/x/image v0.0.0-20210628002857-a66eb6448b8d // indirect
+	golang.org/x/mobile v0.0.0-20210902104108-5d9a33257ab5 // indirect
+	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c // indirect
+	golang.org/x/sys v0.0.0-20210917161153-d61c044b1678 // indirect
 )

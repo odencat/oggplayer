@@ -22,11 +22,11 @@ import (
 	"os"
 	"time"
 
-	"github.com/hajimehoshi/ebiten"
-	"github.com/hajimehoshi/ebiten/audio"
-	"github.com/hajimehoshi/ebiten/audio/vorbis"
-	"github.com/hajimehoshi/ebiten/ebitenutil"
-	"github.com/hajimehoshi/ebiten/inpututil"
+	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/audio"
+	"github.com/hajimehoshi/ebiten/v2/audio/vorbis"
+	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
+	"github.com/hajimehoshi/ebiten/v2/inpututil"
 	"github.com/hajimehoshi/oggloop"
 	"github.com/sqweek/dialog"
 )
@@ -65,14 +65,9 @@ func playerBarRect() (x, y, w, h int) {
 }
 
 func NewPlayer(audioContext *audio.Context, oggPath string) (*Player, error) {
-	type audioStream interface {
-		audio.ReadSeekCloser
-		Length() int64
-	}
-
 	const bytesPerSample = 4 // TODO: This should be defined in audio package
 
-	var s audioStream
+	var s *vorbis.Stream
 	var introSample, loopSample int64
 
 	var err error
@@ -87,7 +82,7 @@ func NewPlayer(audioContext *audio.Context, oggPath string) (*Player, error) {
 		// Ignore oggloop's error.
 		log.Printf("oggloop error: %s, %v", oggPath, err)
 	}
-	s, err = vorbis.Decode(audioContext, audio.BytesReadSeekCloser(dat))
+	s, err = vorbis.Decode(audioContext, bytes.NewReader(dat))
 	if err != nil {
 		return nil, err
 	}
@@ -259,10 +254,7 @@ type Game struct {
 }
 
 func NewGame() (*Game, error) {
-	audioContext, err := audio.NewContext(sampleRate)
-	if err != nil {
-		return nil, err
-	}
+	audioContext := audio.NewContext(sampleRate)
 
 	ebiten.SetRunnableOnUnfocused(true)
 
@@ -274,7 +266,7 @@ func NewGame() (*Game, error) {
 	}, nil
 }
 
-func (g *Game) Update(screen *ebiten.Image) error {
+func (g *Game) Update() error {
 	select {
 	case p := <-g.musicPlayerCh:
 		g.musicPlayer = p
