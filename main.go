@@ -249,10 +249,10 @@ func (p *Player) draw(screen *ebiten.Image) {
 	msg := fmt.Sprintf(`Press Space to toggle Play/Pause
 Press Z or X to change volume of the music
 Current Volume: %d/128
-Current Time: %s (%d),
 Loop Start: %s (%d)
 Loop End: %s (%d)
-`, int(p.audioPlayer.Volume()*128), currentTimeStr, (c*sampleRate)/time.Second, loopStartStr, p.introSample, loopEndStr, p.introSample+p.loopSample)
+Current Time: %s (%d)
+`, int(p.audioPlayer.Volume()*128), loopStartStr, p.introSample, loopEndStr, p.introSample+p.loopSample, currentTimeStr, (c*sampleRate)/time.Second)
 	ebitenutil.DebugPrint(screen, msg)
 }
 
@@ -270,16 +270,11 @@ func NewGame() (*Game, error) {
 		return nil, err
 	}
 
-	m, err := NewPlayer(audioContext, "test/battle01.ogg")
-	if err != nil {
-		return nil, err
-	}
-
 	ebiten.SetRunnableOnUnfocused(true)
 
 	return &Game{
 		audioContext:  audioContext,
-		musicPlayer:   m,
+		musicPlayer:   nil,
 		musicPlayerCh: make(chan *Player),
 		errCh:         make(chan error),
 	}, nil
@@ -321,7 +316,9 @@ func (g *Game) openFileIfNeeded() error {
 	case filename := <-g.fileCh:
 		if filename != "" {
 			fmt.Println("open ogg file", filename)
-			g.musicPlayer.Close()
+			if g.musicPlayer != nil {
+				g.musicPlayer.Close()
+			}
 
 			m, err := NewPlayer(g.audioContext, filename)
 			if err != nil {
@@ -336,7 +333,9 @@ func (g *Game) openFileIfNeeded() error {
 	if !inpututil.IsKeyJustPressed(ebiten.KeyF) {
 		return nil
 	}
-	g.musicPlayer.Pause()
+	if g.musicPlayer != nil {
+		g.musicPlayer.Pause()
+	}
 
 	g.fileCh = make(chan string)
 	go g.openFile()
@@ -345,9 +344,11 @@ func (g *Game) openFileIfNeeded() error {
 }
 
 func (g *Game) Draw(screen *ebiten.Image) {
-	if g.musicPlayer != nil {
-		g.musicPlayer.draw(screen)
+	if g.musicPlayer == nil {
+		ebitenutil.DebugPrint(screen, `Press F to load an ogg file`)
+		return
 	}
+	g.musicPlayer.draw(screen)
 }
 
 func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
