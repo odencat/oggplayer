@@ -289,7 +289,6 @@ func (g *Game) Update() error {
 }
 
 func (g *Game) openFile() {
-	fmt.Println("openFileIfNeeded")
 	filename, err := dialog.File().Filter("Ogg file", "ogg").Load()
 	if err != dialog.Cancelled {
 		g.fileCh <- filename
