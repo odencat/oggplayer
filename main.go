@@ -21,6 +21,7 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 	"image/color"
 	"io/ioutil"
@@ -35,21 +36,20 @@ import (
 	"github.com/hajimehoshi/ebiten/ebitenutil"
 	raudio "github.com/hajimehoshi/ebiten/examples/resources/audio"
 	"github.com/hajimehoshi/ebiten/inpututil"
-	// "github.com/hajimehoshi/oggloop"
+	"github.com/hajimehoshi/oggloop"
 )
 
 const (
 	screenWidth  = 320
 	screenHeight = 240
 
-	sampleRate          = 44100
-	introLengthInSecond = 3
-	loopLengthInSecond  = 5
+	sampleRate = 48000
 )
 
 var (
 	playerBarColor     = color.RGBA{0x80, 0x80, 0x80, 0xff}
 	playerCurrentColor = color.RGBA{0xff, 0xff, 0xff, 0xff}
+	loopCursorColor    = color.RGBA{0xff, 0xff, 0x80, 0xff}
 )
 
 type musicType int
@@ -77,6 +77,8 @@ type Player struct {
 	seCh         chan []byte
 	volume128    int
 	musicType    musicType
+	introSample  int64
+	loopSample   int64
 }
 
 func playerBarRect() (x, y, w, h int) {
@@ -95,14 +97,21 @@ func NewPlayer(audioContext *audio.Context, musicType musicType) (*Player, error
 	const bytesPerSample = 4 // TODO: This should be defined in audio package
 
 	var s audioStream
-
+	var introSample, loopSample int64
 	switch musicType {
 	case typeOgg:
 		var err error
 		var dat []byte
-		dat, err = os.ReadFile("test/ragtime.ogg")
+		oggPath := "test/battle01.ogg"
+		dat, err = os.ReadFile(oggPath)
 		if err != nil {
 			panic(err)
+		}
+
+		introSample, loopSample, err = oggloop.Read(bytes.NewReader(dat))
+		if err != nil {
+			// Ignore oggloop's error.
+			log.Printf("oggloop error: %s, %v", oggPath, err)
 		}
 		s, err = vorbis.Decode(audioContext, audio.BytesReadSeekCloser(dat))
 		if err != nil {
@@ -112,7 +121,7 @@ func NewPlayer(audioContext *audio.Context, musicType musicType) (*Player, error
 		panic("not reached")
 	}
 
-	s2 := audio.NewInfiniteLoopWithIntro(s, introLengthInSecond*4*sampleRate, loopLengthInSecond*4*sampleRate)
+	s2 := audio.NewInfiniteLoopWithIntro(s, introSample*bytesPerSample, loopSample*bytesPerSample)
 
 	p, err := audio.NewPlayer(audioContext, s2)
 	if err != nil {
@@ -125,6 +134,8 @@ func NewPlayer(audioContext *audio.Context, musicType musicType) (*Player, error
 		volume128:    128,
 		seCh:         make(chan []byte),
 		musicType:    musicType,
+		introSample:  introSample,
+		loopSample:   loopSample,
 	}
 	if player.total == 0 {
 		player.total = 1
@@ -150,6 +161,18 @@ func (p *Player) Close() error {
 	return p.audioPlayer.Close()
 }
 
+func (p *Player) loopStartInSecond() float64 {
+	return float64(p.introSample) / (sampleRate)
+}
+
+func (p *Player) loopLengthInSecond() float64 {
+	return float64(p.loopSample) / (sampleRate)
+}
+
+func (p *Player) loopEndInSecond() float64 {
+	return float64(p.introSample+p.loopSample) / (sampleRate)
+}
+
 func (p *Player) update() error {
 	select {
 	case p.seBytes = <-p.seCh:
@@ -160,34 +183,16 @@ func (p *Player) update() error {
 
 	if p.audioPlayer.IsPlaying() {
 		pos := p.audioPlayer.Current()
-		if pos > introLengthInSecond*time.Second {
-			pos = (pos-introLengthInSecond*time.Second)%(loopLengthInSecond*time.Second) + introLengthInSecond*time.Second
+		if pos > time.Duration(p.loopStartInSecond())*time.Second {
+			pos = (pos-time.Duration(p.loopStartInSecond())*time.Second)%(time.Duration(p.loopLengthInSecond())*time.Second) + time.Duration(p.loopStartInSecond())*time.Second
 		}
 		p.current = pos
 	}
 	p.seekBarIfNeeded()
 	p.switchPlayStateIfNeeded()
-	p.playSEIfNeeded()
 	p.updateVolumeIfNeeded()
 
-	if inpututil.IsKeyJustPressed(ebiten.KeyU) {
-		b := ebiten.IsRunnableOnUnfocused()
-		ebiten.SetRunnableOnUnfocused(!b)
-	}
 	return nil
-}
-
-func (p *Player) playSEIfNeeded() {
-	if p.seBytes == nil {
-		// Bytes for the SE is not loaded yet.
-		return
-	}
-
-	if !inpututil.IsKeyJustPressed(ebiten.KeyP) {
-		return
-	}
-	sePlayer, _ := audio.NewPlayerFromBytes(p.audioContext, p.seBytes)
-	sePlayer.Play()
 }
 
 func (p *Player) updateVolumeIfNeeded() {
@@ -254,15 +259,24 @@ func (p *Player) draw(screen *ebiten.Image) {
 	s := (c / time.Second) % 60
 	currentTimeStr := fmt.Sprintf("%02d:%02d", m, s)
 
+	// Draw the loop start on the bar.
+	cx = int(time.Duration(w)*(time.Duration(p.loopStartInSecond())*time.Second)/p.total) + x - cw/2
+	ebitenutil.DrawRect(screen, float64(cx), float64(cy), float64(cw), float64(ch), loopCursorColor)
+
+	// Draw the loop end on the bar.
+	cx = int(time.Duration(w)*(time.Duration(p.loopEndInSecond())*time.Second)/p.total) + x - cw/2
+	ebitenutil.DrawRect(screen, float64(cx), float64(cy), float64(cw), float64(ch), loopCursorColor)
+
+	loopStartStr := fmt.Sprintf("%02d:%02d", int(p.loopStartInSecond())/60, int(p.loopStartInSecond())%60)
+	loopEndStr := fmt.Sprintf("%02d:%02d", int(p.loopEndInSecond())/60, int(p.loopEndInSecond())%60)
 	// Draw the debug message.
-	msg := fmt.Sprintf(`TPS: %0.2f
-Press S to toggle Play/Pause
-Press P to play SE
+	msg := fmt.Sprintf(`Press S to toggle Play/Pause
 Press Z or X to change volume of the music
-Press U to switch the runnable-on-unfocused state
-Current Time: %s
 Current Volume: %d/128
-Type: %s`, ebiten.CurrentTPS(), currentTimeStr, int(p.audioPlayer.Volume()*128), p.musicType)
+Current Time: %s (%d),
+Loop Start: %s (%d)
+Loop End: %s (%d)
+`, int(p.audioPlayer.Volume()*128), currentTimeStr, (c*sampleRate)/time.Second, loopStartStr, p.introSample, loopEndStr, p.introSample+p.loopSample)
 	ebitenutil.DebugPrint(screen, msg)
 }
 
@@ -282,6 +296,8 @@ func NewGame() (*Game, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	ebiten.SetRunnableOnUnfocused(true)
 
 	return &Game{
 		musicPlayer:   m,

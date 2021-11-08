@@ -9,6 +9,8 @@ github.com/hajimehoshi/ebiten v1.12.12/go.mod h1:1XI25ImVCDPJiXox4h9yK/CvN5sjDYn
 github.com/hajimehoshi/file2byteslice v0.0.0-20200812174855-0e5e8a80490e/go.mod h1:CqqAHp7Dk/AqQiwuhV1yT2334qbA/tFWQW0MD2dGqUE=
 github.com/hajimehoshi/go-mp3 v0.3.1 h1:pn/SKU1+/rfK8KaZXdGEC2G/KCB2aLRjbTCrwKcokao=
 github.com/hajimehoshi/go-mp3 v0.3.1/go.mod h1:qMJj/CSDxx6CGHiZeCgbiq2DSUkbK0UbtXShQcnfyMM=
+github.com/hajimehoshi/oggloop v0.0.0-20180730010327-c7cf68761483 h1:UNw0zKKVWvY+zhAUSoxLrd0ku5JBId99tfIKa/6wafY=
+github.com/hajimehoshi/oggloop v0.0.0-20180730010327-c7cf68761483/go.mod h1:WpQQsMK4togvtViNd+e/oiVlI25cEGiMMT99sSd8eNI=
 github.com/hajimehoshi/oto v0.6.1/go.mod h1:0QXGEkbuJRohbJaxr7ZQSxnju7hEhseiPx2hrh6raOI=
 github.com/hajimehoshi/oto v0.6.8 h1:yRb3EJQ4lAkBgZYheqmdH6Lr77RV9nSWFsK/jwWdTNY=
 github.com/hajimehoshi/oto v0.6.8/go.mod h1:0QXGEkbuJRohbJaxr7ZQSxnju7hEhseiPx2hrh6raOI=

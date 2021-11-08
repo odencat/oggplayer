@@ -6,6 +6,7 @@ require (
 	github.com/go-gl/glfw/v3.3/glfw v0.0.0-20200707082815-5321531c36a2 // indirect
 	github.com/hajimehoshi/ebiten v1.12.12 // indirect
 	github.com/hajimehoshi/go-mp3 v0.3.1 // indirect
+	github.com/hajimehoshi/oggloop v0.0.0-20180730010327-c7cf68761483 // indirect
 	github.com/hajimehoshi/oto v0.6.8 // indirect
 	github.com/jfreymuth/oggvorbis v1.0.1 // indirect
 	github.com/jfreymuth/vorbis v1.0.0 // indirect
