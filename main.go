@@ -74,7 +74,7 @@ func NewPlayer(audioContext *audio.Context, oggPath string) (*Player, error) {
 	var dat []byte
 	dat, err = os.ReadFile(oggPath)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
 	introSample, loopSample, err = oggloop.Read(bytes.NewReader(dat))
