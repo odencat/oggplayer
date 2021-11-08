@@ -1,0 +1,7 @@
+*~
+*.msgpack
+.DS_Store
+bin
+language.json
+purchases.json
+save.json
