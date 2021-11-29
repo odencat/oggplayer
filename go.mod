@@ -3,7 +3,7 @@ module github.com/odencat/oggplayer
 go 1.17
 
 require (
-	github.com/hajimehoshi/ebiten/v2 v2.3.0-alpha.2
+	github.com/hajimehoshi/ebiten/v2 v2.3.0-alpha.2.0.20211129150050-c91a6fb81fdf
 	github.com/hajimehoshi/oggloop v0.0.0-20180730010327-c7cf68761483
 	github.com/sqweek/dialog v0.0.0-20211002065838-9a201b55ab91
 )
@@ -11,7 +11,7 @@ require (
 require (
 	github.com/TheTitanrain/w32 v0.0.0-20180517000239-4f5cfb03fabf // indirect
 	github.com/go-gl/glfw/v3.3/glfw v0.0.0-20211024062804-40e447a793be // indirect
-	github.com/hajimehoshi/oto/v2 v2.1.0-alpha.3.0.20211031094829-90037bd6c697 // indirect
+	github.com/hajimehoshi/oto/v2 v2.1.0-alpha.4 // indirect
 	github.com/jezek/xgb v0.0.0-20210312150743-0e0f116e1240 // indirect
 	github.com/jfreymuth/oggvorbis v1.0.3 // indirect
 	github.com/jfreymuth/vorbis v1.0.2 // indirect
